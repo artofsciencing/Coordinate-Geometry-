@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coordinate Geometry – Level Up!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --card: #141428;
+    --accent1: #ff6b6b;
+    --accent2: #ffd93d;
+    --accent3: #6bcb77;
+    --accent4: #4d96ff;
+    --accent5: #c77dff;
+    --text: #f0f0ff;
+    --muted: #8888aa;
+    --border: rgba(255,255,255,0.08);
+    --glass: rgba(255,255,255,0.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 70%, rgba(255,255,255,0.35) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.25) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    background: linear-gradient(135deg, var(--accent4), var(--accent5), var(--accent1));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    letter-spacing: 1px;
+  }
+  .tagline {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  /* XP Bar */
+  .xp-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 500px;
+    margin: 16px auto 0;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 20px;
+    backdrop-filter: blur(8px);
+  }
+  .xp-label { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--accent2); white-space: nowrap; }
+  .xp-track {
+    flex: 1;
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .xp-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent4), var(--accent5));
+    border-radius: 10px;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
+  }
+  .xp-pts { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--accent5); white-space: nowrap; }
+
+  /* Nav Tabs */
+  nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 24px 20px 0;
+    position: relative;
+    z-index: 1;
+  }
+  .tab-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    padding: 10px 22px;
+    border: 2px solid var(--border);
+    background: var(--glass);
+    color: var(--muted);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.25s;
+    backdrop-filter: blur(6px);
+    letter-spacing: 0.5px;
+  }
+  .tab-btn:hover { border-color: var(--accent4); color: var(--accent4); transform: translateY(-2px); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--accent4), var(--accent5));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 20px rgba(77,150,255,0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Sections */
+  main { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; }
+  .section { display: none; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent4), var(--accent5), var(--accent1));
+  }
+  .card-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .badge-easy { background: rgba(107,203,119,0.2); color: var(--accent3); border: 1px solid var(--accent3); }
+  .badge-med  { background: rgba(255,217,61,0.2);  color: var(--accent2); border: 1px solid var(--accent2); }
+  .badge-hard { background: rgba(255,107,107,0.2); color: var(--accent1); border: 1px solid var(--accent1); }
+
+  p { line-height: 1.75; color: #c8c8e0; margin-bottom: 10px; }
+  .highlight {
+    display: inline-block;
+    background: rgba(77,150,255,0.15);
+    border-left: 3px solid var(--accent4);
+    padding: 10px 16px;
+    border-radius: 0 10px 10px 0;
+    margin: 10px 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent4);
+  }
+  .highlight.green { background: rgba(107,203,119,0.12); border-color: var(--accent3); color: var(--accent3); }
+  .highlight.yellow { background: rgba(255,217,61,0.12); border-color: var(--accent2); color: var(--accent2); }
+  .highlight.pink { background: rgba(199,125,255,0.15); border-color: var(--accent5); color: var(--accent5); }
+
+  /* Canvas area */
+  .canvas-wrap {
+    background: #080814;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 16px 0;
+    position: relative;
+  }
+  canvas { display: block; width: 100%; max-width: 560px; margin: 0 auto; }
+  .canvas-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px;
+    justify-content: center;
+    border-top: 1px solid var(--border);
+  }
+  .ctrl-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ctrl-btn:hover { background: rgba(77,150,255,0.2); border-color: var(--accent4); }
+  .ctrl-btn.active-tool { background: rgba(77,150,255,0.3); border-color: var(--accent4); color: var(--accent4); }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 10px 0;
+  }
+  .geo-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    width: 90px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .geo-input:focus { border-color: var(--accent4); }
+  .geo-input.wide { width: 200px; }
+  .go-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    padding: 9px 24px;
+    background: linear-gradient(135deg, var(--accent4), var(--accent5));
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(77,150,255,0.3);
+  }
+  .go-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(77,150,255,0.4); }
+
+  .result-box {
+    background: rgba(107,203,119,0.1);
+    border: 1px solid rgba(107,203,119,0.3);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent3);
+    display: none;
+  }
+  .result-box.visible { display: block; animation: fadeUp 0.3s ease; }
+
+  /* Grid layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Quiz */
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .quiz-q {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 18px;
+    line-height: 1.6;
+  }
+  .quiz-q .q-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: var(--accent4);
+    margin-right: 8px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+  }
+  .opt-btn:hover:not(:disabled) { border-color: var(--accent4); background: rgba(77,150,255,0.1); }
+  .opt-btn.correct { background: rgba(107,203,119,0.2); border-color: var(--accent3); color: var(--accent3); }
+  .opt-btn.wrong   { background: rgba(255,107,107,0.2); border-color: var(--accent1); color: var(--accent1); }
+  .quiz-feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; animation: fadeUp 0.3s ease; }
+  .quiz-feedback.ok  { background: rgba(107,203,119,0.15); color: var(--accent3); border: 1px solid rgba(107,203,119,0.3); }
+  .quiz-feedback.bad { background: rgba(255,107,107,0.15); color: var(--accent1); border: 1px solid rgba(255,107,107,0.3); }
+
+  .score-display {
+    text-align: center;
+    padding: 30px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    display: none;
+  }
+  .score-display.show { display: block; }
+  .score-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 4rem;
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .next-quiz-btn {
+    margin-top: 16px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    padding: 12px 32px;
+    background: linear-gradient(135deg, var(--accent3), var(--accent4));
+    border: none;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(107,203,119,0.3);
+    transition: all 0.2s;
+  }
+  .next-quiz-btn:hover { transform: translateY(-2px); }
+
+  /* Meme section */
+  .meme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+  .meme-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .meme-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(77,150,255,0.15); }
+  .meme-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    font-family: 'Fredoka One', cursive;
+    position: relative;
+    overflow: hidden;
+  }
+  .meme-text {
+    padding: 16px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    text-align: center;
+  }
+  .meme-caption { font-size: 0.8rem; color: var(--muted); margin-top: 4px; font-weight: 400; }
+
+  /* Audio btn */
+  .speak-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.8rem;
+    padding: 5px 14px;
+    border: 1px solid var(--accent5);
+    background: rgba(199,125,255,0.1);
+    color: var(--accent5);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .speak-btn:hover { background: rgba(199,125,255,0.2); }
+  .speak-btn svg { width: 14px; height: 14px; }
+
+  /* Progress dots */
+  .progress-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .dot.done { background: var(--accent3); }
+  .dot.active { background: var(--accent4); box-shadow: 0 0 8px var(--accent4); }
+
+  /* Lesson steps nav */
+  .lesson-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .lesson-nav-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    padding: 10px 26px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .prev-btn { background: var(--glass); border: 1px solid var(--border); color: var(--muted); }
+  .prev-btn:hover { border-color: var(--accent4); color: var(--accent4); }
+  .next-btn { background: linear-gradient(135deg, var(--accent4), var(--accent5)); color: white; box-shadow: 0 4px 16px rgba(77,150,255,0.3); }
+  .next-btn:hover { transform: translateY(-2px); }
+
+  /* Formula box */
+  .formula-box {
+    background: linear-gradient(135deg, rgba(77,150,255,0.08), rgba(199,125,255,0.08));
+    border: 1px solid rgba(77,150,255,0.2);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .formula-box .formula {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.2rem;
+    color: var(--accent2);
+    margin-bottom: 6px;
+  }
+  .formula-box .f-label { font-size: 0.85rem; color: var(--muted); }
+
+  /* Confetti pop */
+  .confetti-pop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+  }
+  .confetti-pop.active { display: block; }
+
+  /* Tooltip */
+  .tooltip { position: relative; display: inline-block; }
+  .tooltip .tip {
+    visibility: hidden;
+    background: #222240;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .tooltip:hover .tip { visibility: visible; opacity: 1; }
+
+  /* Responsive canvas */
+  @media (max-width: 600px) { .card { padding: 18px; } }
+
+  .fun-fact {
+    background: linear-gradient(135deg, rgba(255,217,61,0.08), rgba(255,107,107,0.08));
+    border: 1px solid rgba(255,217,61,0.2);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 0.9rem;
+    color: var(--accent2);
+  }
+  .fun-fact::before { content: '💡 Fun Fact: '; font-weight: 800; }
+
+  .step-indicator {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Animated counter for scores */
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+  .pulse { animation: pulse 0.4s ease; }
+
+  /* Hidden on page load */
+  #lesson-0, #lesson-1, #lesson-2, #lesson-3, #lesson-4 { display: none; }
+  #lesson-0.active-lesson { display: block; }
+</style>
+</head>
+<body>
+
+<canvas class="confetti-pop" id="confettiCanvas"></canvas>
+
+<header>
+  <div class="logo">🧭 CoordQuest</div>
+  <div class="tagline">Master Coordinate Geometry · Level by Level · Have Fun Doing It</div>
+  <div class="xp-container">
+    <span class="xp-label">⚡ XP</span>
+    <div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
+    <span class="xp-pts" id="xpPts">0 / 500</span>
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="showSection('learn')">📚 Learn</button>
+  <button class="tab-btn" onclick="showSection('playground')">🎮 Playground</button>
+  <button class="tab-btn" onclick="showSection('quiz')">🧠 Quiz</button>
+  <button class="tab-btn" onclick="showSection('formulas')">📐 Formula Sheet</button>
+  <button class="tab-btn" onclick="showSection('memes')">😂 Meme Zone</button>
+</nav>
+
+<main>
+
+<!-- ===================== LEARN ===================== -->
+<div id="learn" class="section active">
+
+  <div class="progress-dots" id="lessonDots"></div>
+  <div class="step-indicator" id="stepLabel">Step 1 of 5</div>
+
+  <!-- Lesson 0: What is coordinate geometry -->
+  <div id="lesson-0" class="active-lesson">
+    <div class="card">
+      <div class="card-title">📍 What is Coordinate Geometry? <span class="badge badge-easy">STARTER</span>
+        <button class="speak-btn" onclick="speak('Coordinate Geometry is the bridge between algebra and geometry. We place shapes and points on a grid called the Cartesian plane, and use numbers to describe their exact positions.')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          Listen
+        </button>
+      </div>
+      <p>Coordinate Geometry is the bridge between <strong style="color:var(--accent4)">algebra</strong> and <strong style="color:var(--accent5)">geometry</strong>. Instead of describing shapes with words, we place them on a grid and use <strong style="color:var(--accent2)">numbers</strong> to pinpoint every position!</p>
+      <div class="fun-fact">René Descartes invented this system in the 1600s — legend says he was watching a fly on his ceiling and wondered how to describe its exact position. Mathematics from bug-watching!</div>
+      <p>Every point lives on the <strong style="color:var(--accent3)">Cartesian Plane</strong> — a flat grid with two number lines crossing at right angles.</p>
+      <div class="canvas-wrap">
+        <canvas id="introCanvas" width="560" height="340"></canvas>
+      </div>
+      <p>The horizontal line is the <span class="highlight">x-axis</span>  and the vertical line is the <span class="highlight green">y-axis</span>. They meet at the <span class="highlight yellow">Origin (0, 0)</span>.</p>
+    </div>
+  </div>
+
+  <!-- Lesson 1: Plotting Points -->
+  <div id="lesson-1">
+    <div class="card">
+      <div class="card-title">🎯 Plotting Points <span class="badge badge-easy">EASY</span>
+        <button class="speak-btn" onclick="speak('A point is written as (x, y). X tells you how far to move left or right, and Y tells you how far to move up or down. Always start from the origin — zero, zero — and walk from there.')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          Listen
+        </button>
+      </div>
+      <p>A point is written as <span class="highlight">(x, y)</span>. Think of it as a treasure map — <strong style="color:var(--accent4)">x</strong> tells you to walk left/right, <strong style="color:var(--accent5)">y</strong> tells you to climb up/down.</p>
+      <div class="formula-box">
+        <div class="formula">Point P = (x, y)</div>
+        <div class="f-label">x = horizontal distance from origin · y = vertical distance from origin</div>
+      </div>
+      <p><strong style="color:var(--accent2)">The Four Quadrants:</strong></p>
+      <div class="two-col">
+        <div class="highlight"  style="width:100%">Quadrant I: (+, +) 😊</div>
+        <div class="highlight green" style="width:100%">Quadrant II: (−, +) 🌿</div>
+        <div class="highlight yellow" style="width:100%">Quadrant III: (−, −) 🌙</div>
+        <div class="highlight pink" style="width:100%">Quadrant IV: (+, −) 🌸</div>
+      </div>
+      <p style="margin-top:12px"><strong>Try it:</strong> Enter a point and see it plotted!</p>
+      <div class="input-row">
+        <label style="color:var(--muted);font-size:0.85rem">x =</label>
+        <input class="geo-input" id="px" type="number" value="3" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">y =</label>
+        <input class="geo-input" id="py" type="number" value="4" min="-9" max="9">
+        <button class="go-btn" onclick="plotUserPoint()">Plot It!</button>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="plotCanvas" width="560" height="400"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lesson 2: Distance Formula -->
+  <div id="lesson-2">
+    <div class="card">
+      <div class="card-title">📏 Distance Formula <span class="badge badge-med">MEDIUM</span>
+        <button class="speak-btn" onclick="speak('The distance between two points uses Pythagoras! If you have point A and point B, the distance equals the square root of (x2 minus x1) squared plus (y2 minus y1) squared. It is just Pythagoras hiding in disguise!')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          Listen
+        </button>
+      </div>
+      <p>How far apart are two points? Use the <strong style="color:var(--accent2)">Distance Formula</strong> — it's just Pythagoras's theorem in disguise! 🥷</p>
+      <div class="formula-box">
+        <div class="formula">d = √[ (x₂−x₁)² + (y₂−y₁)² ]</div>
+        <div class="f-label">Where A=(x₁,y₁) and B=(x₂,y₂)</div>
+      </div>
+      <p><strong>Example:</strong> Distance from A(1, 2) to B(4, 6):</p>
+      <div class="highlight">d = √[(4−1)² + (6−2)²] = √[9 + 16] = √25 = <strong>5 units</strong></div>
+      <p style="margin-top:12px"><strong>Try your own:</strong></p>
+      <div class="input-row">
+        <label style="color:var(--muted);font-size:0.85rem">A: (</label>
+        <input class="geo-input" id="ax" type="number" value="1" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">,</label>
+        <input class="geo-input" id="ay" type="number" value="2" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">)  B: (</label>
+        <input class="geo-input" id="bx" type="number" value="4" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">,</label>
+        <input class="geo-input" id="by" type="number" value="6" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">)</label>
+        <button class="go-btn" onclick="calcDistance()">Calculate</button>
+      </div>
+      <div class="result-box" id="distResult"></div>
+      <div class="canvas-wrap" style="margin-top:14px">
+        <canvas id="distCanvas" width="560" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lesson 3: Midpoint Formula -->
+  <div id="lesson-3">
+    <div class="card">
+      <div class="card-title">🎯 Midpoint Formula <span class="badge badge-med">MEDIUM</span>
+        <button class="speak-btn" onclick="speak('The midpoint is the exact middle of a line segment. To find it, just average the x coordinates and average the y coordinates. Midpoint equals x1 plus x2 over 2, comma, y1 plus y2 over 2.')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          Listen
+        </button>
+      </div>
+      <p>The <strong style="color:var(--accent5)">midpoint</strong> is the exact middle of a line segment — just average the coordinates!</p>
+      <div class="formula-box">
+        <div class="formula">M = ( (x₁+x₂)/2 , (y₁+y₂)/2 )</div>
+        <div class="f-label">The point exactly halfway between A and B</div>
+      </div>
+      <p><strong>Example:</strong> Midpoint of A(2, 4) and B(8, 10):</p>
+      <div class="highlight green">M = ((2+8)/2, (4+10)/2) = (5, 7)</div>
+      <div class="input-row">
+        <label style="color:var(--muted);font-size:0.85rem">A: (</label>
+        <input class="geo-input" id="max1" type="number" value="2" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">,</label>
+        <input class="geo-input" id="may1" type="number" value="4" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">)  B: (</label>
+        <input class="geo-input" id="mbx2" type="number" value="8" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">,</label>
+        <input class="geo-input" id="mby2" type="number" value="10" min="-9" max="9">
+        <label style="color:var(--muted);font-size:0.85rem">)</label>
+        <button class="go-btn" onclick="calcMidpoint()">Find Midpoint</button>
+      </div>
+      <div class="result-box" id="midResult"></div>
+      <div class="canvas-wrap" style="margin-top:14px">
+        <canvas id="midCanvas" width="560" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lesson 4: Slope & Lines -->
+  <div id="lesson-4">
+    <div class="card">
+      <div class="card-title">📈 Slope & Straight Lines <span class="badge badge-hard">ADVANCED</span>
+        <button class="speak-btn" onclick="speak('Slope tells us how steep a line is. It equals rise over run — change in y divided by change in x. The equation of a straight line is y equals m x plus c, where m is the slope and c is where the line crosses the y axis.')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          Listen
+        </button>
+      </div>
+      <p><strong style="color:var(--accent2)">Slope (m)</strong> tells us how steep a line is. Think of it as the "rise over run" of a hill 🏔️</p>
+      <div class="formula-box">
+        <div class="formula">m = (y₂ − y₁) / (x₂ − x₁) = rise / run</div>
+        <div class="f-label">Equation of a line: y = mx + c</div>
+      </div>
+      <p>Where <strong style="color:var(--accent4)">m</strong> = slope &nbsp;|&nbsp; <strong style="color:var(--accent3)">c</strong> = y-intercept (where line crosses y-axis)</p>
+      <div class="two-col" style="margin:14px 0">
+        <div class="highlight">Positive slope ↗ (going up)</div>
+        <div class="highlight green">Negative slope ↘ (going down)</div>
+        <div class="highlight yellow">Zero slope → (flat / horizontal)</div>
+        <div class="highlight pink">Undefined slope ↕ (vertical)</div>
+      </div>
+      <p><strong>Draw your own line:</strong> Enter slope (m) and y-intercept (c)</p>
+      <div class="input-row">
+        <label style="color:var(--muted);font-size:0.85rem">m =</label>
+        <input class="geo-input" id="slm" type="number" value="2" step="0.5">
+        <label style="color:var(--muted);font-size:0.85rem">c =</label>
+        <input class="geo-input" id="slc" type="number" value="-1" step="0.5">
+        <button class="go-btn" onclick="drawLine()">Draw Line</button>
+      </div>
+      <div class="result-box" id="lineResult"></div>
+      <div class="canvas-wrap" style="margin-top:14px">
+        <canvas id="lineCanvas" width="560" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="lesson-nav">
+    <button class="lesson-nav-btn prev-btn" id="prevBtn" onclick="changeLesson(-1)" style="visibility:hidden">← Previous</button>
+    <button class="lesson-nav-btn next-btn" id="nextBtn" onclick="changeLesson(1)">Next Topic →</button>
+  </div>
+</div>
+
+<!-- ===================== PLAYGROUND ===================== -->
+<div id="playground" class="section">
+  <div class="card">
+    <div class="card-title">🎮 Interactive Playground</div>
+    <p>Draw, explore, and experiment! Click on the canvas to plot points. Use the tools below to explore geometry concepts.</p>
+    <div class="canvas-wrap">
+      <canvas id="playCanvas" width="560" height="480"></canvas>
+      <div class="canvas-controls">
+        <button class="ctrl-btn active-tool" id="tool-point" onclick="setTool('point')">📍 Plot Point</button>
+        <button class="ctrl-btn" id="tool-line" onclick="setTool('line')">📏 Draw Line</button>
+        <button class="ctrl-btn" id="tool-circle" onclick="setTool('circle')">⭕ Circle</button>
+        <button class="ctrl-btn" onclick="clearPlayground()">🗑️ Clear</button>
+        <button class="ctrl-btn" onclick="showCoords()">🔍 Show Coords</button>
+      </div>
+    </div>
+    <div id="playInfo" class="result-box visible" style="display:block">Click anywhere on the grid to start!</div>
+  </div>
+
+  <!-- Challenge cards -->
+  <div class="card">
+    <div class="card-title">🏆 Mini Challenges</div>
+    <div class="two-col">
+      <div style="background:rgba(77,150,255,0.07);border:1px solid rgba(77,150,255,0.2);border-radius:14px;padding:18px;">
+        <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--accent4);margin-bottom:8px">Challenge 1</div>
+        <p>Plot these points and connect them: A(1,1), B(5,1), C(5,4), D(1,4) — what shape do you get?</p>
+        <button class="go-btn" style="margin-top:10px" onclick="solveChallenge1()">Reveal Answer</button>
+      </div>
+      <div style="background:rgba(199,125,255,0.07);border:1px solid rgba(199,125,255,0.2);border-radius:14px;padding:18px;">
+        <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--accent5);margin-bottom:8px">Challenge 2</div>
+        <p>Find the distance between A(−3, 2) and B(3, −6). Hint: Draw it first!</p>
+        <button class="go-btn" style="margin-top:10px;background:linear-gradient(135deg,var(--accent5),var(--accent1))" onclick="solveChallenge2()">Reveal Answer</button>
+      </div>
+    </div>
+    <div id="challengeResult" class="result-box" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- ===================== QUIZ ===================== -->
+<div id="quiz" class="section">
+  <div class="score-display" id="scoreDisplay">
+    <div class="score-num" id="finalScore">0/8</div>
+    <p style="color:var(--muted);margin:8px 0">Quiz Complete!</p>
+    <div id="scoreMsg" style="font-size:1.1rem;font-weight:700;color:var(--accent3)"></div>
+    <button class="next-quiz-btn" onclick="restartQuiz()">🔄 Try Again</button>
+  </div>
+
+  <div id="quizQuestions"></div>
+</div>
+
+<!-- ===================== FORMULA SHEET ===================== -->
+<div id="formulas" class="section">
+  <div class="card">
+    <div class="card-title">📐 Formula Cheat Sheet</div>
+    <p style="color:var(--muted)">Bookmark this! Everything you need in one place.</p>
+  </div>
+
+  <div class="two-col">
+    <div class="card" style="--before-bg:var(--accent4)">
+      <div class="card-title" style="color:var(--accent4)">📍 Point & Coordinates</div>
+      <div class="formula-box">
+        <div class="formula">P = (x, y)</div>
+        <div class="f-label">x = horizontal, y = vertical</div>
+      </div>
+      <p>Origin = (0, 0)</p>
+      <p>x-axis: y = 0</p>
+      <p>y-axis: x = 0</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--accent3)">📏 Distance Formula</div>
+      <div class="formula-box">
+        <div class="formula">d = √[(x₂−x₁)² + (y₂−y₁)²]</div>
+        <div class="f-label">Distance between two points</div>
+      </div>
+      <p>This is just Pythagoras' theorem!</p>
+      <p>Distance from origin to (x,y): <span style="color:var(--accent2);font-family:Space Mono,monospace">√(x²+y²)</span></p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--accent5)">🎯 Midpoint Formula</div>
+      <div class="formula-box">
+        <div class="formula">M = ((x₁+x₂)/2, (y₁+y₂)/2)</div>
+        <div class="f-label">Exact centre of two points</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--accent2)">📈 Slope (Gradient)</div>
+      <div class="formula-box">
+        <div class="formula">m = (y₂−y₁)/(x₂−x₁)</div>
+        <div class="f-label">Rise ÷ Run</div>
+      </div>
+      <p>Parallel lines: m₁ = m₂</p>
+      <p>Perpendicular lines: m₁ × m₂ = −1</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--accent1)">📉 Equation of Line</div>
+      <div class="formula-box">
+        <div class="formula">y = mx + c</div>
+        <div class="f-label">Slope-intercept form</div>
+      </div>
+      <div class="formula-box" style="margin-top:10px">
+        <div class="formula">y − y₁ = m(x − x₁)</div>
+        <div class="f-label">Point-slope form</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--accent3)">🔺 Section Formula</div>
+      <div class="formula-box">
+        <div class="formula">P = ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n))</div>
+        <div class="f-label">Point dividing AB in ratio m:n</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:0">
+    <div class="card-title">🌍 Quadrant Quick Reference</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--border);border-radius:12px;overflow:hidden">
+      <div style="background:rgba(199,125,255,0.1);padding:20px;text-align:center">
+        <div style="font-family:'Fredoka One',cursive;color:var(--accent5);font-size:1.1rem">Quadrant II</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--muted);margin-top:4px">(−x, +y)</div>
+      </div>
+      <div style="background:rgba(77,150,255,0.1);padding:20px;text-align:center">
+        <div style="font-family:'Fredoka One',cursive;color:var(--accent4);font-size:1.1rem">Quadrant I</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--muted);margin-top:4px">(+x, +y)</div>
+      </div>
+      <div style="background:rgba(255,107,107,0.1);padding:20px;text-align:center">
+        <div style="font-family:'Fredoka One',cursive;color:var(--accent1);font-size:1.1rem">Quadrant III</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--muted);margin-top:4px">(−x, −y)</div>
+      </div>
+      <div style="background:rgba(107,203,119,0.1);padding:20px;text-align:center">
+        <div style="font-family:'Fredoka One',cursive;color:var(--accent3);font-size:1.1rem">Quadrant IV</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--muted);margin-top:4px">(+x, −y)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MEMES ===================== -->
+<div id="memes" class="section">
+  <div class="card" style="text-align:center;padding:20px">
+    <div class="card-title" style="justify-content:center">😂 Meme Zone — Geometry Just Got Funny</div>
+    <p>Because if you're laughing, you're learning!</p>
+  </div>
+  <div class="meme-grid" id="memeGrid"></div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// GLOBALS
+// ============================================================
+let currentLesson = 0;
+const totalLessons = 5;
+let xp = 0;
+let playTool = 'point';
+let playPoints = [];
+let playLines = [];
+let playCircles = [];
+let clickCount = 0;
+let lineStart = null;
+let circleCenter = null;
+
+// ============================================================
+// XP SYSTEM
+// ============================================================
+function addXP(pts) {
+  xp = Math.min(xp + pts, 500);
+  document.getElementById('xpFill').style.width = (xp/500*100) + '%';
+  document.getElementById('xpPts').textContent = xp + ' / 500';
+  if (xp >= 500) document.getElementById('xpPts').style.color = 'var(--accent2)';
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id === 'playground') setTimeout(initPlayground, 50);
+  if (id === 'quiz') initQuiz();
+  if (id === 'memes') renderMemes();
+}
+
+// ============================================================
+// LESSONS
+// ============================================================
+function buildDots() {
+  const c = document.getElementById('lessonDots');
+  c.innerHTML = '';
+  for (let i = 0; i < totalLessons; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i < currentLesson ? ' done' : i === currentLesson ? ' active' : '');
+    c.appendChild(d);
+  }
+  document.getElementById('stepLabel').textContent = `Step ${currentLesson+1} of ${totalLessons}`;
+  document.getElementById('prevBtn').style.visibility = currentLesson === 0 ? 'hidden' : 'visible';
+  document.getElementById('nextBtn').textContent = currentLesson === totalLessons-1 ? '🎉 Start Quiz!' : 'Next Topic →';
+}
+
+function changeLesson(dir) {
+  if (dir === 1 && currentLesson === totalLessons - 1) {
+    document.querySelector('[onclick="showSection(\'quiz\')"]').click();
+    return;
+  }
+  document.getElementById('lesson-'+currentLesson).style.display = 'none';
+  document.getElementById('lesson-'+currentLesson).classList.remove('active-lesson');
+  currentLesson = Math.max(0, Math.min(totalLessons-1, currentLesson + dir));
+  const el = document.getElementById('lesson-'+currentLesson);
+  el.style.display = 'block';
+  el.classList.add('active-lesson');
+  buildDots();
+  addXP(10);
+  setTimeout(() => {
+    if (currentLesson === 0) drawIntroCanvas();
+    if (currentLesson === 1) drawPlotCanvas();
+    if (currentLesson === 2) drawDistCanvas();
+    if (currentLesson === 3) drawMidCanvas();
+    if (currentLesson === 4) drawLineCanvas();
+  }, 50);
+  window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+// ============================================================
+// SPEECH
+// ============================================================
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.92; u.pitch = 1.05;
+    window.speechSynthesis.speak(u);
+  }
+}
+
+// ============================================================
+// CANVAS HELPERS
+// ============================================================
+function getCtx(id) {
+  const c = document.getElementById(id);
+  if (!c) return null;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = c.getBoundingClientRect();
+  return { ctx: c.getContext('2d'), canvas: c, dpr };
+}
+
+function drawGrid(ctx, canvas, cellSize=40, ox=null, oy=null) {
+  const W = canvas.width, H = canvas.height;
+  ox = ox ?? Math.floor(W/2);
+  oy = oy ?? Math.floor(H/2);
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#080814';
+  ctx.fillRect(0, 0, W, H);
+
+  // grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let x = ox % cellSize; x < W; x += cellSize) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = oy % cellSize; y < H; y += cellSize) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(W, oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, H); ctx.stroke();
+
+  // axis labels
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '10px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  for (let i = -10; i <= 10; i++) {
+    if (i === 0) continue;
+    const px = ox + i * cellSize, py = oy + i * cellSize;
+    if (px > 4 && px < W-4) { ctx.fillText(i, px, oy + 14); }
+    if (py > 4 && py < H-4) { ctx.textAlign = 'right'; ctx.fillText(-i, ox - 4, py + 4); ctx.textAlign = 'center'; }
+  }
+
+  // axis arrows & labels
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = 'bold 13px Nunito, sans-serif';
+  ctx.fillText('x', W - 10, oy - 6);
+  ctx.textAlign = 'left';
+  ctx.fillText('y', ox + 6, 14);
+  ctx.textAlign = 'center';
+
+  return { ox, oy };
+}
+
+function toCanvas(gx, gy, ox, oy, cellSize=40) {
+  return { x: ox + gx*cellSize, y: oy - gy*cellSize };
+}
+
+function drawPoint(ctx, cx, cy, color='#ff6b6b', label='', r=5) {
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  if (label) {
+    ctx.fillStyle = color;
+    ctx.font = 'bold 13px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, cx, cy - 12);
+  }
+}
+
+// ============================================================
+// LESSON CANVASES
+// ============================================================
+function drawIntroCanvas() {
+  const c = document.getElementById('introCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const {ox, oy} = drawGrid(ctx, c, 40);
+
+  // Quadrant labels
+  const qlabels = [['I', 1,1,'rgba(77,150,255,0.3)'], ['II', -1,1,'rgba(199,125,255,0.3)'],
+                   ['III', -1,-1,'rgba(255,107,107,0.3)'], ['IV', 1,-1,'rgba(107,203,119,0.3)']];
+  qlabels.forEach(([l, sx, sy, col]) => {
+    ctx.fillStyle = col;
+    ctx.fillRect(ox + sx*2, oy - sy*2, sx*c.width, -sy*c.height);
+    ctx.fillStyle = col.replace('0.3', '0.9');
+    ctx.font = 'bold 18px Fredoka One, cursive';
+    ctx.textAlign = 'center';
+    ctx.fillText(l, ox + sx*80, oy - sy*60);
+  });
+
+  // Origin
+  drawPoint(ctx, ox, oy, '#ffd93d', 'O (0,0)', 6);
+
+  // Sample points
+  const pts = [[3,2,'A(3,2)','#4d96ff'], [-2,3,'B(−2,3)','#c77dff'], [-3,-1,'C(−3,−1)','#ff6b6b'], [2,-2,'D(2,−2)','#6bcb77']];
+  pts.forEach(([gx,gy,lbl,col]) => {
+    const {x,y} = toCanvas(gx,gy,ox,oy);
+    drawPoint(ctx, x, y, col, lbl);
+  });
+}
+
+function drawPlotCanvas(gx=3, gy=4) {
+  const c = document.getElementById('plotCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const {ox, oy} = drawGrid(ctx, c, 40);
+  const {x, y} = toCanvas(gx, gy, ox, oy);
+
+  // dashed guide lines
+  ctx.setLineDash([5,4]);
+  ctx.strokeStyle = 'rgba(77,150,255,0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ox, y); ctx.lineTo(x, y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, oy); ctx.lineTo(x, y); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // quadrant label
+  const q = (gx>=0&&gy>=0)?'Quadrant I':(gx<0&&gy>=0)?'Quadrant II':(gx<0&&gy<0)?'Quadrant III':'Quadrant IV';
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.font = '11px Nunito, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(q, x, y + (gy >= 0 ? 22 : -12));
+
+  drawPoint(ctx, x, y, '#ff6b6b', `P(${gx}, ${gy})`, 7);
+}
+
+function plotUserPoint() {
+  const gx = parseInt(document.getElementById('px').value) || 0;
+  const gy = parseInt(document.getElementById('py').value) || 0;
+  drawPlotCanvas(gx, gy);
+  addXP(5);
+}
+
+function drawDistCanvas(ax=1,ay=2,bx=4,by=6) {
+  const c = document.getElementById('distCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const {ox, oy} = drawGrid(ctx, c, 40);
+  const A = toCanvas(ax,ay,ox,oy), B = toCanvas(bx,by,ox,oy);
+
+  // line AB
+  ctx.strokeStyle = '#4d96ff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+
+  // right angle marker
+  ctx.strokeStyle = 'rgba(255,217,61,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(A.x,B.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(A.x,B.y); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const d = Math.sqrt((bx-ax)**2+(by-ay)**2);
+  const mx = (A.x+B.x)/2, my = (A.y+B.y)/2;
+  ctx.fillStyle = '#4d96ff';
+  ctx.font = 'bold 12px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`d ≈ ${d.toFixed(2)}`, mx, my - 10);
+
+  drawPoint(ctx, A.x, A.y, '#6bcb77', `A(${ax},${ay})`);
+  drawPoint(ctx, B.x, B.y, '#ff6b6b', `B(${bx},${by})`);
+}
+
+function calcDistance() {
+  const ax=+document.getElementById('ax').value, ay=+document.getElementById('ay').value;
+  const bx=+document.getElementById('bx').value, by=+document.getElementById('by').value;
+  const d = Math.sqrt((bx-ax)**2+(by-ay)**2);
+  const r = document.getElementById('distResult');
+  r.classList.add('visible');
+  r.innerHTML = `✅ d = √[(${bx}−${ax})² + (${by}−${ay})²] = √[${(bx-ax)**2} + ${(by-ay)**2}] = √${(bx-ax)**2+(by-ay)**2} ≈ <strong>${d.toFixed(3)}</strong> units`;
+  drawDistCanvas(ax,ay,bx,by);
+  addXP(15);
+}
+
+function drawMidCanvas(ax=2,ay=4,bx=8,by=10) {
+  const c = document.getElementById('midCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const {ox, oy} = drawGrid(ctx, c, 30);
+  const A = toCanvas(ax,ay,ox,oy,30), B = toCanvas(bx,by,ox,oy,30);
+  const mx=(ax+bx)/2, my=(ay+by)/2;
+  const M = toCanvas(mx,my,ox,oy,30);
+
+  ctx.strokeStyle = '#c77dff'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+
+  drawPoint(ctx, A.x, A.y, '#6bcb77', `A(${ax},${ay})`);
+  drawPoint(ctx, B.x, B.y, '#ff6b6b', `B(${bx},${by})`);
+  drawPoint(ctx, M.x, M.y, '#ffd93d', `M(${mx},${my})`, 7);
+
+  // equal marks
+  [[A,M],[M,B]].forEach(([p1,p2]) => {
+    const cx2=(p1.x+p2.x)/2, cy2=(p1.y+p2.y)/2;
+    const angle = Math.atan2(p2.y-p1.y, p2.x-p1.x);
+    ctx.save(); ctx.translate(cx2,cy2); ctx.rotate(angle);
+    ctx.strokeStyle='rgba(255,217,61,0.6)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(-5,-5); ctx.lineTo(5,5); ctx.stroke();
+    ctx.restore();
+  });
+}
+
+function calcMidpoint() {
+  const ax=+document.getElementById('max1').value, ay=+document.getElementById('may1').value;
+  const bx=+document.getElementById('mbx2').value, by=+document.getElementById('mby2').value;
+  const mx=(ax+bx)/2, my=(ay+by)/2;
+  const r=document.getElementById('midResult');
+  r.classList.add('visible');
+  r.innerHTML = `✅ M = ((${ax}+${bx})/2, (${ay}+${by})/2) = <strong>(${mx}, ${my})</strong>`;
+  drawMidCanvas(ax,ay,bx,by);
+  addXP(15);
+}
+
+function drawLineCanvas(m=2, c=-1) {
+  const cv = document.getElementById('lineCanvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const {ox, oy} = drawGrid(ctx, cv, 40);
+  const W = cv.width, H = cv.height;
+
+  // Draw y = mx + c
+  ctx.strokeStyle = '#ff6b6b';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let started = false;
+  for (let px = 0; px < W; px++) {
+    const gx = (px - ox) / 40;
+    const gy = m * gx + c;
+    const py = oy - gy * 40;
+    if (!started) { ctx.moveTo(px, py); started=true; }
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // y-intercept
+  const yiPt = toCanvas(0, c, ox, oy);
+  drawPoint(ctx, yiPt.x, yiPt.y, '#ffd93d', `(0,${c})`, 5);
+
+  // slope indicator
+  const x0=2, y0=m*x0+c, x1=x0+1, y1=m*x1+c;
+  const P0=toCanvas(x0,y0,ox,oy), P1=toCanvas(x1,y1,ox,oy);
+  ctx.fillStyle='rgba(77,150,255,0.15)';
+  ctx.fillRect(P0.x, Math.min(P0.y,P1.y), P1.x-P0.x, Math.abs(P1.y-P0.y));
+  ctx.fillStyle='#4d96ff'; ctx.font='11px Space Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText('run=1', (P0.x+P1.x)/2, P0.y+14);
+  ctx.fillStyle='#c77dff'; ctx.textAlign='left';
+  ctx.fillText(`rise=${m}`, P1.x+4, (P0.y+P1.y)/2);
+  ctx.textAlign='center';
+
+  // equation label
+  ctx.fillStyle='#ff6b6b'; ctx.font='bold 13px Space Mono, monospace';
+  ctx.fillText(`y = ${m}x ${c>=0?'+':''}${c}`, ox+80, 20);
+}
+
+function drawLine() {
+  const m=+document.getElementById('slm').value;
+  const c=+document.getElementById('slc').value;
+  drawLineCanvas(m,c);
+  const r=document.getElementById('lineResult');
+  r.classList.add('visible');
+  const slopeName = m>0?'Positive (going up ↗)':m<0?'Negative (going down ↘)':m===0?'Zero (flat →)':'Undefined';
+  r.innerHTML=`✅ Line: <strong>y = ${m}x ${c>=0?'+ ':''}${c}</strong> | Slope: ${slopeName} | y-intercept: (0, ${c})`;
+  addXP(15);
+}
+
+// ============================================================
+// PLAYGROUND
+// ============================================================
+function initPlayground() {
+  const c = document.getElementById('playCanvas');
+  if (!c) return;
+  drawPlayground();
+  c.onclick = handlePlayClick;
+}
+
+function drawPlayground() {
+  const c = document.getElementById('playCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const {ox, oy} = drawGrid(ctx, c, 40);
+  c._ox = ox; c._oy = oy;
+
+  playPoints.forEach(([gx,gy,col,lbl]) => {
+    const {x,y} = toCanvas(gx,gy,ox,oy);
+    drawPoint(ctx,x,y,col,lbl);
+  });
+  playLines.forEach(([ax,ay,bx,by]) => {
+    const A=toCanvas(ax,ay,ox,oy), B=toCanvas(bx,by,ox,oy);
+    ctx.strokeStyle='#4d96ff'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+  });
+  playCircles.forEach(([cx,cy,r]) => {
+    const C=toCanvas(cx,cy,ox,oy), rPx=r*40;
+    ctx.strokeStyle='#c77dff'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(C.x,C.y,rPx,0,Math.PI*2); ctx.stroke();
+  });
+}
+
+function setTool(t) {
+  playTool=t; lineStart=null; circleCenter=null;
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active-tool'));
+  document.getElementById('tool-'+t)?.classList.add('active-tool');
+  document.getElementById('playInfo').textContent = {
+    point:'Click to plot a point!',
+    line:'Click two points to draw a line!',
+    circle:'Click centre, then a point on the edge!'
+  }[t];
+}
+
+const colors = ['#ff6b6b','#4d96ff','#6bcb77','#ffd93d','#c77dff','#ff9f43','#54a0ff'];
+
+function handlePlayClick(e) {
+  const c = document.getElementById('playCanvas');
+  const rect = c.getBoundingClientRect();
+  const scaleX = c.width / rect.width;
+  const scaleY = c.height / rect.height;
+  const px = (e.clientX - rect.left) * scaleX;
+  const py = (e.clientY - rect.top) * scaleY;
+  const ox = c._ox || c.width/2;
+  const oy = c._oy || c.height/2;
+  const gx = Math.round((px - ox) / 40);
+  const gy = Math.round((oy - py) / 40);
+
+  if (playTool === 'point') {
+    const col = colors[playPoints.length % colors.length];
+    const lbl = String.fromCharCode(65 + playPoints.length % 26) + `(${gx},${gy})`;
+    playPoints.push([gx, gy, col, lbl]);
+    document.getElementById('playInfo').textContent = `Plotted ${lbl}`;
+    addXP(3);
+  } else if (playTool === 'line') {
+    if (!lineStart) { lineStart=[gx,gy]; document.getElementById('playInfo').textContent=`First point: (${gx},${gy}) — now click second point`; }
+    else { playLines.push([lineStart[0],lineStart[1],gx,gy]); lineStart=null; document.getElementById('playInfo').textContent=`Line drawn! Click two new points for another.`; addXP(5); }
+  } else if (playTool === 'circle') {
+    if (!circleCenter) { circleCenter=[gx,gy]; document.getElementById('playInfo').textContent=`Centre set at (${gx},${gy}) — click edge point`; }
+    else { const r=Math.sqrt((gx-circleCenter[0])**2+(gy-circleCenter[1])**2); playCircles.push([circleCenter[0],circleCenter[1],r]); circleCenter=null; document.getElementById('playInfo').textContent=`Circle drawn! r ≈ ${r.toFixed(2)}`; addXP(5); }
+  }
+  drawPlayground();
+}
+
+function clearPlayground() { playPoints=[]; playLines=[]; playCircles=[]; lineStart=null; circleCenter=null; drawPlayground(); document.getElementById('playInfo').textContent='Canvas cleared! Start fresh 🎨'; }
+
+function showCoords() {
+  if (!playPoints.length) { document.getElementById('playInfo').textContent='No points yet! Plot some first.'; return; }
+  document.getElementById('playInfo').textContent = 'Points: ' + playPoints.map(([x,y])=>`(${x},${y})`).join(', ');
+}
+
+function solveChallenge1() {
+  playPoints=[]; playLines=[];
+  [[1,1],[5,1],[5,4],[1,4]].forEach(([x,y],i)=>{
+    playPoints.push([x,y,colors[i], String.fromCharCode(65+i)+`(${x},${y})`]);
+  });
+  playLines=[[1,1,5,1],[5,1,5,4],[5,4,1,4],[1,4,1,1]];
+  drawPlayground();
+  const r=document.getElementById('challengeResult');
+  r.innerHTML='🟦 It\'s a <strong>Rectangle!</strong> Width = 4 units, Height = 3 units, Area = 12 sq units';
+  r.classList.add('visible');
+  addXP(20);
+}
+function solveChallenge2() {
+  const d=Math.sqrt((3-(-3))**2+(-6-2)**2);
+  const r=document.getElementById('challengeResult');
+  r.innerHTML=`📏 d = √[(3−(−3))² + (−6−2)²] = √[36 + 64] = √100 = <strong>10 units</strong> 🎉`;
+  r.classList.add('visible');
+  addXP(20); fireConfetti();
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+const quizData = [
+  { q:"Which quadrant contains the point (−3, 5)?", opts:["Quadrant I","Quadrant II","Quadrant III","Quadrant IV"], ans:1, exp:"(−, +) always lives in Quadrant II! 🎯" },
+  { q:"What is the distance between A(0, 0) and B(3, 4)?", opts:["5","7","√7","4"], ans:0, exp:"√(9+16) = √25 = 5. Classic 3-4-5 triangle! 🐍" },
+  { q:"The midpoint of A(2, 6) and B(8, 2) is:", opts:["(5, 4)","(6, 4)","(4, 5)","(10, 8)"], ans:0, exp:"((2+8)/2, (6+2)/2) = (5, 4). Average everything! 🎯" },
+  { q:"A line has slope m = 0. This means it is:", opts:["Vertical","Horizontal","Diagonal","Undefined"], ans:1, exp:"Zero slope = flat = horizontal! Like a calm sea 🌊" },
+  { q:"If two lines are perpendicular, their slopes m₁ and m₂ satisfy:", opts:["m₁ = m₂","m₁ + m₂ = 1","m₁ × m₂ = −1","m₁ − m₂ = 0"], ans:2, exp:"Perpendicular lines: m₁ × m₂ = −1. They flip and negate! ✂️" },
+  { q:"The slope of the line through (1, 2) and (4, 8) is:", opts:["2","3","0.5","6"], ans:0, exp:"m = (8−2)/(4−1) = 6/3 = 2. Rise 6, run 3! 🏃" },
+  { q:"Point (−5, 0) lies on which axis?", opts:["y-axis","x-axis","Both axes","Neither"], ans:1, exp:"y = 0 means it's ON the x-axis! 📏" },
+  { q:"The equation y = 3x + 7 has a y-intercept of:", opts:["3","7","x","0"], ans:1, exp:"y = mx + c → c = 7 is where it crosses the y-axis! 🎯" },
+];
+
+let quizAnswers = [];
+let quizSubmitted = [];
+
+function initQuiz() {
+  quizAnswers = new Array(quizData.length).fill(null);
+  quizSubmitted = new Array(quizData.length).fill(false);
+  document.getElementById('scoreDisplay').classList.remove('show');
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const container = document.getElementById('quizQuestions');
+  container.innerHTML = '';
+  quizData.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-card';
+    div.innerHTML = `
+      <div class="quiz-q"><span class="q-num">Q${qi+1}.</span>${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o,oi)=>`<button class="opt-btn" id="opt-${qi}-${oi}" onclick="selectOpt(${qi},${oi})">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="fb-${qi}"></div>
+    `;
+    container.appendChild(div);
+  });
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'next-quiz-btn';
+  submitBtn.style.display='block';
+  submitBtn.style.margin='0 auto';
+  submitBtn.textContent = '✅ Submit All Answers';
+  submitBtn.onclick = submitQuiz;
+  container.appendChild(submitBtn);
+}
+
+function selectOpt(qi, oi) {
+  if (quizSubmitted[qi]) return;
+  quizAnswers[qi] = oi;
+  for (let i=0;i<quizData[qi].opts.length;i++) {
+    const b = document.getElementById(`opt-${qi}-${i}`);
+    b.style.borderColor = i===oi ? 'var(--accent4)' : '';
+    b.style.background = i===oi ? 'rgba(77,150,255,0.15)' : '';
+  }
+}
+
+function submitQuiz() {
+  let score = 0;
+  quizData.forEach((q,qi) => {
+    quizSubmitted[qi]=true;
+    const chosen = quizAnswers[qi];
+    const correct = q.ans;
+    for (let oi=0;oi<q.opts.length;oi++) {
+      const b=document.getElementById(`opt-${qi}-${oi}`);
+      b.disabled=true;
+      if (oi===correct) b.classList.add('correct');
+      else if (oi===chosen && chosen!==correct) b.classList.add('wrong');
+    }
+    const fb=document.getElementById(`fb-${qi}`);
+    fb.classList.add('show');
+    if (chosen===correct) {
+      fb.textContent='✅ Correct! '+q.exp;
+      fb.classList.add('ok');
+      score++;
+    } else {
+      fb.textContent=`❌ Not quite! ${q.exp} (Answer: ${q.opts[correct]})`;
+      fb.classList.add('bad');
+    }
+  });
+  const pts = score*25;
+  addXP(pts);
+  setTimeout(()=>{
+    document.getElementById('scoreDisplay').classList.add('show');
+    document.getElementById('finalScore').textContent=`${score}/${quizData.length}`;
+    const msgs=['Keep practising! 💪','Getting there! 🌱','Good effort! 📚','Nice work! 🎉','Great job! ⭐','Excellent! 🌟','Amazing! 🏆','Perfect Score! 🎖️'];
+    document.getElementById('scoreMsg').textContent=msgs[score]||'🎉 Brilliant!';
+    if (score>=6) fireConfetti();
+    document.getElementById('scoreDisplay').scrollIntoView({behavior:'smooth'});
+  }, 500);
+}
+
+function restartQuiz() { initQuiz(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+// ============================================================
+// MEMES
+// ============================================================
+const memeData = [
+  { emoji:'🐟', bg:'linear-gradient(135deg,#0d3b66,#1a6b9a)', text:'When you finally understand slope', caption:'"It\'s just rise over run... it\'s just rise over run..."' },
+  { emoji:'😭', bg:'linear-gradient(135deg,#4a1942,#7b2d82)', text:'Me trying to find which quadrant (−3, −7) is in', caption:'Spoiler: just follow the signs! (−,−) = Quadrant III' },
+  { emoji:'🐍', bg:'linear-gradient(135deg,#1a4731,#2d7a52)', text:'Pythagoras every time someone uses the distance formula', caption:'"YOU\'RE WELCOME, BY THE WAY"' },
+  { emoji:'🎯', bg:'linear-gradient(135deg,#5c3317,#a0522d)', text:'Me plotting points correctly for the first time', caption:'The satisfaction is IMMENSE' },
+  { emoji:'📍', bg:'linear-gradient(135deg,#1a0533,#4a0e8f)', text:'"Walk right, then climb up" is literally the whole secret', caption:'Coordinate geometry speedrun any%' },
+  { emoji:'🤯', bg:'linear-gradient(135deg,#660000,#b00020)', text:'When you realise the midpoint is just an average', caption:'Mathematics has been lying about being hard' },
+  { emoji:'📈', bg:'linear-gradient(135deg,#003366,#005cbf)', text:'Positive slope vs Negative slope', caption:'One goes up. One goes down. You\'ve got this.' },
+  { emoji:'🧮', bg:'linear-gradient(135deg,#2d4a00,#5a9e00)', text:'When y = mx + c finally clicks', caption:'"m is slope, c is where it starts... I AM UNSTOPPABLE"' },
+  { emoji:'🌍', bg:'linear-gradient(135deg,#003333,#006666)', text:'GPS: basically coordinate geometry', caption:'Every time you get directions, maths saves the day' },
+];
+
+function renderMemes() {
+  const g = document.getElementById('memeGrid');
+  if (g.innerHTML) return;
+  memeData.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'meme-card';
+    div.innerHTML = `
+      <div class="meme-img" style="background:${m.bg}">
+        <span style="font-size:5rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5))">${m.emoji}</span>
+      </div>
+      <div class="meme-text">
+        ${m.text}
+        <div class="meme-caption">${m.caption}</div>
+      </div>`;
+    g.appendChild(div);
+  });
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function fireConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add('active');
+  const ctx = canvas.getContext('2d');
+  const particles = Array.from({length:120},()=>({
+    x: Math.random()*canvas.width,
+    y: -10,
+    vy: 2+Math.random()*4,
+    vx: (Math.random()-0.5)*3,
+    r: 4+Math.random()*6,
+    color: ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff'][Math.floor(Math.random()*5)],
+    rot: Math.random()*360,
+    rSpeed: (Math.random()-0.5)*5
+  }));
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+      p.y += p.vy; p.x += p.vx; p.rot += p.rSpeed;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 120) requestAnimationFrame(animate);
+    else canvas.classList.remove('active');
+  }
+  animate();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.onload = function() {
+  buildDots();
+  drawIntroCanvas();
+};
+</script>
+</body>
+</html>
